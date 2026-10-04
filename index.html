@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0d1217">
+  <title>Alex Morgan | Full-Stack Developer</title>
+  <meta name="description" content="Portfolio of Alex Morgan, a full-stack developer who builds fast, accessible web applications.">
+
+  <!-- Fonts (optional): the page falls back to system fonts if these fail to load -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <style>
+    /* =========================================================
+       1. DESIGN TOKENS — change colors and fonts here
+       ========================================================= */
+    :root {
+      color-scheme: dark;
+      --bg: #0d1217;          /* page background */
+      --surface: #151c23;     /* cards, panels */
+      --ink: #e8eef3;         /* main text (high contrast) */
+      --muted: #a3b1bd;       /* secondary text */
+      --line: #263441;        /* borders */
+      --accent: #2dd4a7;      /* primary accent: buttons, links, headings */
+      --accent-hover: #5fe3c0;/* hover state */
+      --on-accent: #06251d;   /* text on accent buttons */
+      --highlight: #f5c84b;   /* secondary accent: hero highlight */
+      --hero-bg: #111a22;     /* hero + contact background */
+      --hero-ink: #f1f5f8;    /* hero text */
+      --header-bg: rgba(13, 18, 23, 0.9);
+      --footer-bg: #090d11;
+      --shadow: rgba(0, 0, 0, 0.45);
+
+      --font-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+      --font-body: "DM Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+
+      --radius: 14px;
+      --header-h: 68px;
+      --max: 1080px;
+    }
+
+    /* =========================================================
+       2. BASE / RESET
+       ========================================================= */
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: var(--header-h); }
+    body {
+      margin: 0;
+      font-family: var(--font-body);
+      font-size: 1.0625rem;
+      line-height: 1.65;
+      color: var(--ink);
+      background: var(--bg);
+      -webkit-font-smoothing: antialiased;
+    }
+    h1, h2, h3 { font-family: var(--font-display); line-height: 1.15; margin: 0; letter-spacing: -0.02em; }
+    p { margin: 0; }
+    a { color: var(--accent); }
+    ul { list-style: none; margin: 0; padding: 0; }
+    :focus-visible { outline: 3px solid var(--highlight); outline-offset: 3px; border-radius: 4px; }
+
+    .container { width: min(100% - 2.5rem, var(--max)); margin-inline: auto; }
+    section { padding: 5.5rem 0; }
+    .section-title { font-size: clamp(1.8rem, 4vw, 2.5rem); margin-bottom: 2.5rem; color: var(--accent); }
+
+    /* Buttons */
+    .btn {
+      display: inline-block;
+      padding: 0.8rem 1.5rem;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 1rem;
+      text-decoration: none;
+      border: 2px solid var(--accent);
+      background: var(--accent);
+      color: var(--on-accent);
+      transition: background 0.2s, color 0.2s, transform 0.2s;
+    }
+    .btn:hover { background: var(--accent-hover); border-color: var(--accent-hover); transform: translateY(-2px); }
+    .btn--ghost { background: transparent; color: inherit; border-color: currentColor; }
+    .btn--ghost:hover { background: rgba(255,255,255,0.12); border-color: currentColor; }
+
+    /* =========================================================
+       3. HEADER / NAVIGATION
+       ========================================================= */
+    .site-header {
+      position: sticky; top: 0; z-index: 100;
+      height: var(--header-h);
+      background: var(--header-bg);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--line);
+    }
+    .nav { height: 100%; display: flex; align-items: center; justify-content: space-between; }
+    .logo { font-family: var(--font-display); font-weight: 800; font-size: 1.3rem; color: var(--ink); text-decoration: none; }
+    .nav-links { display: flex; gap: 2rem; }
+    .nav-links a {
+      color: var(--muted); text-decoration: none; font-weight: 500;
+      padding: 0.3rem 0; border-bottom: 2px solid transparent;
+      transition: color 0.2s, border-color 0.2s;
+    }
+    .nav-links a:hover, .nav-links a.active { color: var(--ink); border-color: var(--accent); }
+
+    /* Hamburger button (mobile only) */
+    .nav-toggle {
+      display: none; background: none; border: 0; padding: 0.6rem; cursor: pointer;
+    }
+    .nav-toggle span, .nav-toggle span::before, .nav-toggle span::after {
+      display: block; width: 24px; height: 2px; background: var(--ink);
+      transition: transform 0.25s, background 0.25s;
+    }
+    .nav-toggle span { position: relative; }
+    .nav-toggle span::before, .nav-toggle span::after { content: ""; position: absolute; left: 0; }
+    .nav-toggle span::before { top: -7px; }
+    .nav-toggle span::after { top: 7px; }
+    .nav-toggle[aria-expanded="true"] span { background: transparent; }
+    .nav-toggle[aria-expanded="true"] span::before { transform: translateY(7px) rotate(45deg); }
+    .nav-toggle[aria-expanded="true"] span::after { transform: translateY(-7px) rotate(-45deg); }
+
+    /* =========================================================
+       4. HERO — one orchestrated load sequence
+       ========================================================= */
+    .hero {
+      background: var(--hero-bg); color: var(--hero-ink);
+      padding: 6rem 0 7rem; position: relative; overflow: hidden;
+    }
+    .hero-inner { display: grid; grid-template-columns: 1.4fr 1fr; gap: 3rem; align-items: center; }
+    .hero h1 { font-size: clamp(2.6rem, 7vw, 4.8rem); font-weight: 800; }
+    .hero h1 span { display: block; color: var(--highlight); }
+    .hero-text { margin: 1.5rem 0 2rem; max-width: 34rem; font-size: 1.2rem; color: var(--muted); }
+    .hero-actions { display: flex; flex-wrap: wrap; gap: 1rem; }
+
+    /* Portrait placeholder: replace the initials with an <img> */
+    .portrait {
+      justify-self: center; width: min(100%, 320px); aspect-ratio: 1;
+      border-radius: 38% 62% 55% 45% / 45% 40% 60% 55%;
+      background: var(--highlight); color: var(--hero-bg);
+      display: grid; place-items: center;
+      font-family: var(--font-display); font-weight: 800; font-size: 5rem;
+      animation: morph 12s ease-in-out infinite alternate;
+    }
+    .portrait img { width: 100%; height: 100%; object-fit: cover; border-radius: inherit; }
+    @keyframes morph {
+      to { border-radius: 55% 45% 40% 60% / 60% 55% 45% 40%; }
+    }
+
+    /* Staggered entrance on page load */
+    .hero-inner > div > *, .portrait { opacity: 0; transform: translateY(22px); animation: rise 0.8s ease forwards; }
+    .hero-inner > div > :nth-child(2) { animation-delay: 0.15s; }
+    .hero-inner > div > :nth-child(3) { animation-delay: 0.3s; }
+    .portrait { animation: rise 0.8s 0.45s ease forwards, morph 12s 1.2s ease-in-out infinite alternate; }
+    @keyframes rise { to { opacity: 1; transform: none; } }
+
+    /* =========================================================
+       5. ABOUT
+       ========================================================= */
+    .about-grid { display: grid; grid-template-columns: 1.6fr 1fr; gap: 3rem; }
+    .about-grid p + p { margin-top: 1rem; }
+    .facts { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 1.5rem; align-self: start; }
+    .facts li { display: flex; justify-content: space-between; gap: 1rem; padding: 0.7rem 0; border-bottom: 1px solid var(--line); }
+    .facts li:last-child { border-bottom: 0; }
+    .facts strong { font-weight: 700; }
+    .facts span { color: var(--muted); text-align: right; }
+
+    /* =========================================================
+       6. SKILLS
+       ========================================================= */
+    .skills { background: var(--surface); border-block: 1px solid var(--line); }
+    .skills-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 3rem; }
+    .skills h3 { font-size: 1.3rem; margin-bottom: 1.5rem; }
+    .skill { margin-bottom: 1.2rem; }
+    .skill-head { display: flex; justify-content: space-between; font-weight: 500; margin-bottom: 0.4rem; }
+    .skill-head span { color: var(--muted); }
+    .bar { height: 8px; background: var(--line); border-radius: 99px; overflow: hidden; }
+    .bar i { display: block; height: 100%; width: 0; background: var(--accent); border-radius: inherit; transition: width 1.1s cubic-bezier(.2,.7,.2,1); }
+    .tags { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+    .tags li { padding: 0.4rem 0.95rem; border: 1px solid var(--line); border-radius: 99px; background: var(--bg); font-weight: 500; font-size: 0.95rem; }
+
+    /* =========================================================
+       7. PROJECTS
+       ========================================================= */
+    .project-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.75rem; }
+    .card {
+      display: flex; flex-direction: column;
+      background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+      overflow: hidden;
+      transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+    }
+    /* Thumbnail placeholder: swap for <img src="..." alt="..."> */
+    .card-thumb { height: 150px; display: grid; place-items: center; font-family: var(--font-display); font-weight: 800; font-size: 2.4rem; color: var(--ink); }
+    .card:nth-child(1) .card-thumb { background: #0f3d36; }
+    .card:nth-child(2) .card-thumb { background: #1b2d47; }
+    .card:nth-child(3) .card-thumb { background: #4a3516; }
+    .card-body { padding: 1.5rem; display: flex; flex-direction: column; flex: 1; gap: 0.8rem; }
+    .card h3 { font-size: 1.3rem; }
+    .card p { color: var(--muted); font-size: 1rem; }
+    .card .tags { margin-top: auto; padding-top: 0.4rem; }
+    .card .tags li { font-size: 0.82rem; padding: 0.2rem 0.7rem; }
+    .card .btn {
+      align-self: flex-start; padding: 0.55rem 1.2rem; font-size: 0.95rem;
+      position: relative; overflow: hidden; /* clips the sheen */
+      transition: background 0.2s, color 0.2s, transform 0.2s, box-shadow 0.25s;
+    }
+    /* Diagonal sheen that sweeps across the button on hover */
+    .card .btn::before {
+      content: ""; position: absolute; top: 0; left: -80%; width: 50%; height: 100%;
+      background: linear-gradient(100deg, transparent, rgba(255,255,255,0.4), transparent);
+      transform: skewX(-20deg); pointer-events: none;
+      transition: left 0.6s ease;
+    }
+    .card .btn:active { transform: scale(0.97); } /* press feedback, also works on touch */
+
+    /* =========================================================
+       8. CONTACT
+       ========================================================= */
+    .contact { background: var(--hero-bg); color: var(--hero-ink); }
+    .contact p { max-width: 36rem; color: var(--muted); margin-bottom: 2rem; }
+    .contact .section-title { margin-bottom: 1rem; }
+    .contact-email { display: inline-block; font-family: var(--font-display); font-weight: 700; font-size: clamp(1.4rem, 4vw, 2.2rem); color: var(--highlight); text-decoration: none; border-bottom: 2px solid currentColor; margin-bottom: 2rem; }
+    .contact-email:hover { color: var(--ink); }
+    .socials { display: flex; flex-wrap: wrap; gap: 1rem; }
+
+    /* =========================================================
+       9. FOOTER
+       ========================================================= */
+    .site-footer { background: var(--footer-bg); color: var(--muted); padding: 2rem 0; font-size: 0.95rem; }
+    .footer-inner { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem; }
+    .site-footer a { color: var(--ink); }
+
+    /* Scroll reveal for cards and about content (JS adds .visible) */
+    .reveal { opacity: 0; transform: translateY(18px); transition: opacity 0.6s ease, transform 0.6s ease; }
+    .reveal.visible { opacity: 1; transform: none; }
+
+    /* =========================================================
+       9b. PROJECT CARD & BUTTON HOVER EFFECTS
+       Cards also use .reveal, so these selectors are deliberately
+       more specific; otherwise .reveal.visible would cancel the lift.
+       ========================================================= */
+    .card.reveal {
+      /* keeps the scroll-in fade, but uses the hover timing for lift and shadow */
+      transition: opacity 0.6s ease, transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+    }
+    /* Keyboard users get the same lift when a link inside the card has focus */
+    .card.reveal.visible:focus-within {
+      transform: translateY(-8px);
+      border-color: var(--accent);
+      box-shadow: 0 20px 40px var(--shadow), 0 0 28px rgba(45, 212, 167, 0.12);
+    }
+    .card .btn:focus-visible::before { left: 130%; }
+
+    /* Mouse hover only: touch screens skip this so cards never "stick" in a hover state after a tap */
+    @media (hover: hover) and (pointer: fine) {
+      .card.reveal.visible:hover {
+        transform: translateY(-8px);
+        border-color: rgba(45, 212, 167, 0.55); /* fallback */
+        border-color: color-mix(in srgb, var(--accent) 55%, var(--line));
+        box-shadow: 0 20px 40px var(--shadow), 0 0 28px rgba(45, 212, 167, 0.12);
+      }
+      .card .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 18px rgba(45, 212, 167, 0.35);
+      }
+      .card .btn:hover::before { left: 130%; }
+    }
+
+    /* =========================================================
+       10. RESPONSIVE
+       ========================================================= */
+    @media (max-width: 860px) {
+      .hero-inner, .about-grid { grid-template-columns: 1fr; }
+      .portrait { order: -1; width: 200px; font-size: 3.5rem; }
+      section { padding: 4rem 0; }
+      .hero { padding: 3.5rem 0 4.5rem; }
+    }
+    @media (max-width: 720px) {
+      .nav-toggle { display: block; }
+      .nav-links {
+        position: absolute; top: var(--header-h); left: 0; right: 0;
+        flex-direction: column; gap: 0; background: var(--bg);
+        border-bottom: 1px solid var(--line);
+        max-height: 0; overflow: hidden; visibility: hidden;
+        transition: max-height 0.3s ease, visibility 0.3s;
+      }
+      .nav-links.open { max-height: 320px; visibility: visible; }
+      .nav-links a { display: block; padding: 1rem 1.25rem; border-bottom: 1px solid var(--line); }
+    }
+
+    /* Respect users who prefer less motion */
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after { animation: none !important; transition: none !important; }
+      .hero-inner > div > *, .portrait, .reveal { opacity: 1; transform: none; }
+      .bar i { width: var(--level) !important; }
+      .card.reveal.visible:hover, .card.reveal.visible:focus-within, .card .btn:hover { transform: none; }
+      .card .btn::before { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ================= HEADER ================= -->
+  <header class="site-header">
+    <nav class="container nav" aria-label="Main navigation">
+      <a href="#home" class="logo">Alex Morgan</a>
+      <button class="nav-toggle" aria-label="Toggle menu" aria-expanded="false" aria-controls="nav-links"><span></span></button>
+      <ul class="nav-links" id="nav-links">
+        <li><a href="#about">About</a></li>
+        <li><a href="#skills">Skills</a></li>
+        <li><a href="#projects">Projects</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <!-- ================= HERO ================= -->
+    <section class="hero" id="home">
+      <div class="container hero-inner">
+        <div>
+          <h1>Hi, I'm Alex Morgan. <span>I build for the web.</span></h1>
+          <p class="hero-text">Full-stack developer creating fast, accessible, and well-crafted web applications for startups and growing teams.</p>
+          <div class="hero-actions">
+            <a href="#projects" class="btn">View my work</a>
+            <a href="#contact" class="btn btn--ghost">Get in touch</a>
+          </div>
+        </div>
+        <!-- Replace "AM" with: <img src="your-photo.jpg" alt="Portrait of Alex Morgan"> -->
+        <div class="portrait" aria-hidden="true">AM</div>
+      </div>
+    </section>
+
+    <!-- ================= ABOUT ================= -->
+    <section id="about">
+      <div class="container">
+        <h2 class="section-title">About me</h2>
+        <div class="about-grid">
+          <div class="reveal">
+            <p>I'm a full-stack developer with 5+ years of experience turning ideas into reliable products. I enjoy the whole journey: shaping requirements, designing clean interfaces, and building the back-end systems that keep them running.</p>
+            <p>I care about performance, accessibility, and code that teammates can read six months later. Previously I worked at [Company Name], where I led the redesign of a customer dashboard used by more than 20,000 people.</p>
+            <p>Away from the keyboard, you'll find me hiking, reading about design, or experimenting with new recipes.</p>
+          </div>
+          <ul class="facts reveal">
+            <li><strong>Location</strong><span>City, Country</span></li>
+            <li><strong>Experience</strong><span>5+ years</span></li>
+            <li><strong>Education</strong><span>B.Sc. Computer Science</span></li>
+            <li><strong>Availability</strong><span>Open to new projects</span></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= SKILLS ================= -->
+    <section class="skills" id="skills">
+      <div class="container">
+        <h2 class="section-title">Skills</h2>
+        <div class="skills-grid">
+          <div>
+            <h3>Technical</h3>
+            <!-- Change --level and the label to update each bar -->
+            <div class="skill"><div class="skill-head">JavaScript / TypeScript <span>90%</span></div><div class="bar"><i style="--level:90%"></i></div></div>
+            <div class="skill"><div class="skill-head">HTML &amp; CSS <span>95%</span></div><div class="bar"><i style="--level:95%"></i></div></div>
+            <div class="skill"><div class="skill-head">React &amp; Node.js <span>85%</span></div><div class="bar"><i style="--level:85%"></i></div></div>
+            <div class="skill"><div class="skill-head">SQL &amp; NoSQL databases <span>80%</span></div><div class="bar"><i style="--level:80%"></i></div></div>
+            <div class="skill"><div class="skill-head">Git &amp; CI/CD <span>85%</span></div><div class="bar"><i style="--level:85%"></i></div></div>
+          </div>
+          <div>
+            <h3>Professional</h3>
+            <ul class="tags">
+              <li>Project management</li>
+              <li>Team leadership</li>
+              <li>Technical writing</li>
+              <li>Client communication</li>
+              <li>Agile / Scrum</li>
+              <li>Code review</li>
+              <li>Problem solving</li>
+              <li>Mentoring</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= PROJECTS ================= -->
+    <section id="projects">
+      <div class="container">
+        <h2 class="section-title">Projects</h2>
+        <div class="project-grid">
+
+          <article class="card reveal">
+            <div class="card-thumb" aria-hidden="true">Taskly</div>
+            <div class="card-body">
+              <h3>Taskly: Team Task Manager</h3>
+              <p>A collaborative task board with real-time updates, drag-and-drop columns, and email reminders.</p>
+              <ul class="tags"><li>React</li><li>Node.js</li><li>PostgreSQL</li></ul>
+              <a href="#" class="btn">View project</a>
+            </div>
+          </article>
+
+          <article class="card reveal">
+            <div class="card-thumb" aria-hidden="true">Shopfront</div>
+            <div class="card-body">
+              <h3>Shopfront: Online Store</h3>
+              <p>A fast e-commerce site with search, filters, a secure checkout flow, and an admin dashboard.</p>
+              <ul class="tags"><li>TypeScript</li><li>Next.js</li><li>Stripe</li></ul>
+              <a href="#" class="btn">View project</a>
+            </div>
+          </article>
+
+          <article class="card reveal">
+            <div class="card-thumb" aria-hidden="true">Weatherly</div>
+            <div class="card-body">
+              <h3>Weatherly: Forecast App</h3>
+              <p>A responsive weather app that shows hourly and weekly forecasts with location search.</p>
+              <ul class="tags"><li>JavaScript</li><li>REST API</li><li>CSS</li></ul>
+              <a href="#" class="btn">View project</a>
+            </div>
+          </article>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= CONTACT ================= -->
+    <section class="contact" id="contact">
+      <div class="container">
+        <h2 class="section-title">Let's work together</h2>
+        <p>Have a project in mind or just want to say hello? Send me an email and I'll reply within two business days.</p>
+        <a class="contact-email" href="mailto:hello@example.com">hello@example.com</a>
+        <div class="socials">
+          <a class="btn btn--ghost" href="https://github.com/your-username" target="_blank" rel="noopener">GitHub</a>
+          <a class="btn btn--ghost" href="https://linkedin.com/in/your-username" target="_blank" rel="noopener">LinkedIn</a>
+          <a class="btn btn--ghost" href="https://twitter.com/your-username" target="_blank" rel="noopener">Twitter</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <p>&copy; <span id="year">2026</span> Alex Morgan. All rights reserved.</p>
+      <p><a href="#home">Back to top</a></p>
+    </div>
+  </footer>
+
+  <script>
+    // ---------- Mobile menu toggle ----------
+    const toggle = document.querySelector('.nav-toggle');
+    const menu = document.getElementById('nav-links');
+
+    toggle.addEventListener('click', () => {
+      const open = menu.classList.toggle('open');
+      toggle.setAttribute('aria-expanded', open);
+    });
+
+    // Close the menu after choosing a link, or when pressing Escape
+    menu.querySelectorAll('a').forEach(link =>
+      link.addEventListener('click', () => {
+        menu.classList.remove('open');
+        toggle.setAttribute('aria-expanded', 'false');
+      })
+    );
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') {
+        menu.classList.remove('open');
+        toggle.setAttribute('aria-expanded', 'false');
+      }
+    });
+
+    // ---------- Highlight the nav link for the section in view ----------
+    const links = [...menu.querySelectorAll('a')];
+    const sectionObserver = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          links.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + entry.target.id));
+        }
+      });
+    }, { rootMargin: '-45% 0px -50% 0px' });
+    document.querySelectorAll('main section[id]').forEach(s => sectionObserver.observe(s));
+
+    // ---------- Reveal content and fill skill bars when scrolled into view ----------
+    const revealObserver = new IntersectionObserver((entries, obs) => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add('visible');
+        entry.target.querySelectorAll?.('.bar i').forEach(bar => bar.style.width = getComputedStyle(bar).getPropertyValue('--level'));
+        obs.unobserve(entry.target);
+      });
+    }, { threshold: 0.15 });
+    document.querySelectorAll('.reveal, .skills-grid').forEach(el => revealObserver.observe(el));
+
+    // ---------- Footer year ----------
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
